@@ -10,7 +10,7 @@ spec:
     targetRevision: HEAD
   destination:
     namespace: argocd
-    server: https://k3d-alpha-server-0:6443
+    server: https://kubernetes.default.svc
   project: default
   syncPolicy:
     automated:
