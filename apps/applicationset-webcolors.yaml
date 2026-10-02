@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-color-multi-cluster
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: beta
+            url: https://k3d-beta-server-0:6443
+            region: us
+            namespace: web-color
+          - cluster: gamma
+            url: https://k3d-gamma-server-0:6443
+            region: br
+            namespace: web-color
+  template:
+    metadata:
+      name: "web-color-{{region}}-{{cluster}}"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/andresramilo/web-color-deploy
+        path: k8s/app-of-apps
+        targetRevision: HEAD
+      destination:
+        server: "{{url}}"
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
